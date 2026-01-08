@@ -1,3 +1,4 @@
+# Unity generated
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -5,13 +6,16 @@
 [Bb]uilds/
 [Ll]ogs/
 [Uu]serSettings/
-.vs/
-KeyStore/
-*.keystore
-*.jks
 
+# IDE / OS
+.vs/
 *.csproj
 *.sln
 *.user
 *.unityproj
 .DS_Store
+
+# Android keystore (important)
+KeyStore/
+*.keystore
+*.jks

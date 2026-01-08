@@ -1,0 +1,84 @@
+{
+  "items2": [
+    {
+      "name": "초원 마을",
+      "sub": "바람이 머물다 가는 푸른 들판.\n햇살이 시간처럼 스며드는 곳.",
+      "sub2": "기본",
+      "spritePath": "background/ground",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": true
+    },
+    {
+      "name": "오로라 마을",
+      "sub": "하늘 위를 흐르는 빛의 강.\n차가운 공기 속 따뜻한 기적.",
+      "sub2": "모아이를 꾸준히\n소환해 보세요.",
+      "spritePath": "background/night",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "벚꽃 마을",
+      "sub": "분홍빛 향기가 흩날리는 밤.\n짧은 계절의 잔상.",
+      "sub2": "모아이를 꾸준히\n소환해 보세요.",
+      "spritePath": "background/spring",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "바다 마을",
+      "sub": "파도 너머에 잠든 푸른 숨결.\n고요 속의 깊은 울림.",
+      "sub2": "모아이를 꾸준히\n합쳐 보세요.",
+      "spritePath": "background/sea",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "단풍 마을",
+      "sub": "바람에 스친 붉은 잎사귀.\n사라져가는 계절의 온기.",
+      "sub2": "모아이를 꾸준히\n합쳐 보세요.",
+      "spritePath": "background/autumn",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "눈 마을",
+      "sub": "하얀 세상에 내려앉은 정적.\n멈춰버린 듯한 겨울의 숨.",
+      "sub2": "일일보상을 꾸준히\n획득해 보세요.",
+      "spritePath": "background/snow",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "사막 마을",
+      "sub": "끝없는 모래와 흔들리는 빛.\n고요만이 남은 세계.",
+      "sub2": "일일보상을 꾸준히\n획득해 보세요.",
+      "spritePath": "background/desert",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "구름 위 마을",
+      "sub": "희미한 햇살 아래 떠다니는 빛.\n현실과 꿈의 경계.",
+      "sub2": "클릭클릭을 꾸준히\n플레이 해보세요.",
+      "spritePath": "background/cloud",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "달나라 마을",
+      "sub": "은빛 먼지가 감싸는 하늘.\n중력이 잊힌 공간.",
+      "sub2": "깜짝상자를 꾸준히\n획득 해보세요.",
+      "spritePath": "background/moon",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    },
+    {
+      "name": "무지개 마을",
+      "sub": "비가 걷힌 하늘에 피어오른 빛.\n사라지지 않는 약속.",
+      "sub2": "행운시험을 꾸준히\n이용해 보세요.",
+      "spritePath": "background/rainbow",
+      "panelPrefabPath": "bg_Panel",
+      "spawncheck": false
+    }
+  ]
+}
