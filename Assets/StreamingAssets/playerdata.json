@@ -1,0 +1,118 @@
+{
+  "currency": {
+    "gold": 0,
+    "dia": 0,
+    "ticket": 0,
+    "token": 0
+  },
+  "clickclick": {
+    "stageLevel": 0,
+    "hp": 100,
+    "maxHp": 100,
+    "damage": 1,
+    "damage_check": 1,
+    "damage_upgrade": 50,
+    "rewardGold": 200,
+    "rewardDia": 5,
+    "rewardTicket": 0
+  },
+  "dailyReward": {
+    "lastRewardDate": "2026-01-14",
+    "playTimeToday": 5.306906700134277,
+    "playTimeTodayMax": 30,
+    "rewardGivenToday": false,
+    "rewardCheck": 0
+  },
+  "offline": {
+    "lastQuitUtcTicks": 0,
+    "cachedGoldPerSec": 0.0
+  },
+  "settings": {
+    "childMax": 5,
+    "clickMax": 1,
+    "clickNum": 1,
+    "getGoldTime": 5.0,
+    "spawnTime": 5.0,
+    "ChgetGold": 0,
+    "autoSpawnPurchased": false,
+    "autoMergePurchased": false,
+    "autoSpawnActive": false,
+    "autoMergeActive": false,
+    "autoSpawnRemain": 0.0,
+    "autoMergeRemain": 0.0,
+    "autoSpawnCooldown": 0.0,
+    "autoMergeCooldown": 0.0,
+    "autoSpawnEnabled": true,
+    "autoMergeEnabled": true
+  },
+  "upgrades": {
+    "chprefab": 0,
+    "upCh": 0,
+    "count": 0,
+    "upgrade": 0,
+    "booknum": 0,
+    "background": 0,
+    "backgroundcheck": 0
+  },
+  "background": {
+    "spawn_check": 0,
+    "merge_check": 0,
+    "box_check": 0,
+    "lotto_check": 0
+  },
+  "shops": {
+    "shop_1_price": 100,
+    "shop_2_price": 30,
+    "shop_3_price": 40,
+    "shop_4_price": 20,
+    "shop_1_level": 1,
+    "shop_2_level": 1,
+    "shop_3_level": 1,
+    "shop_4_level": 1,
+    "tokenshop_1_price": 1,
+    "tokenshop_2_price": 500,
+    "tokenshop_3_price": 1000
+  },
+  "lottos": {
+    "lotto_1_value": 0.10000000149011612,
+    "lotto_1_reward": 2,
+    "lotto_2_value": 1.399999976158142,
+    "lotto_2_reward": 1,
+    "lotto_3_value": 16.5,
+    "lotto_3_reward": 100,
+    "lotto_4_value": 32.0,
+    "lotto_4_reward": 2000,
+    "lotto_5_value": 50.0,
+    "lotto_5_reward": 0
+  },
+  "missions": {
+    "mission_2_value": 0,
+    "mission_2_max": 1,
+    "mission_2_reward": 5,
+    "mission_2_tic": 0,
+    "mission_3_value": 0,
+    "mission_3_max": 2,
+    "mission_3_reward": 20,
+    "mission_3_tic": 0,
+    "mission_4_value": 0,
+    "mission_4_max": 2,
+    "mission_4_reward": 30,
+    "mission_4_tic": 0,
+    "mission_5_value": 0,
+    "mission_5_max": 50,
+    "mission_5_reward": 20,
+    "mission_5_tic": 0,
+    "mission_6_value": 0,
+    "mission_6_max": 1,
+    "mission_6_reward": 10,
+    "mission_6_tic": 0,
+    "mission_7_value": 0,
+    "mission_7_max": 1,
+    "mission_7_reward": 10,
+    "mission_7_tic": 0,
+    "mission_8_value": 0,
+    "mission_8_max": 1,
+    "mission_8_reward": 1,
+    "mission_8_tic": 0
+  }
+}
