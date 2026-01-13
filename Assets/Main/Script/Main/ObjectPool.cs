@@ -88,6 +88,10 @@ public class ObjectPool : MonoBehaviour
         obj.transform.position = position;
         obj.transform.rotation = rotation;
 
+        obj.transform.localScale = Vector3.one;
+        var mi2 = obj.GetComponent<MergeItem>();
+        if (mi2 != null) mi2.isMerging = false;
+
         obj.SetActive(true);
 
         return obj;
@@ -95,10 +99,15 @@ public class ObjectPool : MonoBehaviour
 
     public void ReturnToPool(int id, GameObject obj)
     {
+        // 상태 리셋 (중요)
+        obj.transform.localScale = Vector3.one;
+
+        var mi = obj.GetComponent<MergeItem>();
+        if (mi != null) mi.isMerging = false;
+
         obj.SetActive(false);
         obj.transform.SetParent(poolParent);
 
-        // ★ 위치 초기화해서 병합 후 충돌 잔재 삭제
         obj.transform.localPosition = Vector3.zero;
 
         poolDict[id].Enqueue(obj);

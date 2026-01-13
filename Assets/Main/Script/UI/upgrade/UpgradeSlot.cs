@@ -132,12 +132,39 @@ public class UpgradeSlot : MonoBehaviour
 
         data.currency.dia -= cost;
         item.upgrade = true;
+        ApplyUpgradeToSpawnedCharacters(index);
         data.upgrades.upgrade++;
         data.missions.mission_8_value++;
+
+        // 오프라인 캐시도 즉시 최신화(선택이지만 추천)
+        if (OfflineRewardSystem.Instance != null)
+        {
+            data.offline.cachedGoldPerSec = OfflineRewardSystem.Instance.CalculateGoldPerTick();
+        }
 
         SaveManager.Save(data);
 
         UpdateSlot();
         UpgradeManager.Instance.UpdateAllSlots();
+    }
+
+    private void ApplyUpgradeToSpawnedCharacters(int levelIndex)
+    {
+        // chp는 너 프로젝트에서 태그로 찾고 있으니 동일하게
+        Transform chp = GameObject.FindGameObjectWithTag("chp")?.transform;
+        if (chp == null) return;
+
+        for (int i = 0; i < chp.childCount; i++)
+        {
+            var child = chp.GetChild(i);
+            if (!child.gameObject.activeSelf) continue;
+
+            var mi = child.GetComponent<MergeItem>();
+            if (mi == null) continue;
+
+            // 이 슬롯의 캐릭터 레벨이면 UC true로 반영
+            if (mi.iN == levelIndex)
+                mi.UC = true;
+        }
     }
 }

@@ -8,6 +8,7 @@ public class GameData
     public Currency currency = new Currency();        // 재화
     public ClickClick clickclick = new ClickClick();  // 클릭 관련
     public DailyReward dailyReward = new DailyReward(); // 출석 보상용
+    public OfflineData offline = new OfflineData(); // 오프라인 보상
     public Settings settings = new Settings();        // 설정값
     public Upgrades upgrades = new Upgrades();        // 업그레이드
     public Background background = new Background();        // 배경
@@ -46,6 +47,13 @@ public class GameData
         public int playTimeTodayMax = 30;
         public bool rewardGivenToday = false;
         public int rewardCheck = 0;
+    }
+
+    [System.Serializable]
+    public class OfflineData
+    {
+        public long lastQuitUtcTicks;     // 마지막 종료/백그라운드 진입 시간(UTC)
+        public double cachedGoldPerSec;   // 마지막 저장 시점의 초당 수급량
     }
 
     [System.Serializable]

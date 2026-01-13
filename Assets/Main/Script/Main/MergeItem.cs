@@ -30,6 +30,8 @@ public class MergeItem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     private bool isInitialized = false;  // ★ 풀링 초기 생성 시 OnEnable 방지
 
+    public bool isMerging;
+
     private void Awake()
     {
         chp = GameObject.FindGameObjectWithTag("chp")?.transform;

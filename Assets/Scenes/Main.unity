@@ -17605,6 +17605,8 @@ GameObject:
   - component: {fileID: 1105283374}
   - component: {fileID: 1105283373}
   - component: {fileID: 1105283372}
+  - component: {fileID: 1105283375}
+  - component: {fileID: 1105283376}
   m_Layer: 0
   m_Name: ItemData
   m_TagString: Untagged
@@ -17627,6 +17629,9 @@ MonoBehaviour:
   cb: {fileID: 1369042144425868880, guid: b1006bcc3a294f84d8a8f1567880e367, type: 3}
   objPosition1: {x: 0, y: 0, z: 0}
   IsLoadingData: 0
+  useMergeSpawnScaleFx: 1
+  spawnPopDuration: 0.16
+  spawnStartScale: 0.15
 --- !u!4 &1105283369
 Transform:
   m_ObjectHideFlags: 0
@@ -17692,6 +17697,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1467108b6b9b6442afd9d63806f6e49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mergeMoveDuration: 0.28
+  mergeScaleDown: 0.15
 --- !u!114 &1105283374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17716,6 +17723,42 @@ MonoBehaviour:
   mergeToggleButton: {fileID: 319898558}
   mergeToggleText: {fileID: 993137783}
   mergeToggleImage: {fileID: 319898554}
+--- !u!114 &1105283375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105283367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01f1d604e1b9dad47a166d1d3628a98d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxOfflineHours: 12
+  diaPerMinutes: 2
+  ticketPerMinutes: 30
+  useCachedTickGold: 1
+  maxRate: 0.5
+  minRate: 0.05
+  pivotGps: 3000
+  maxGps: 300000
+  offlineGoldCap: 5000000
+  debugLog: 0
+--- !u!114 &1105283376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105283367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eedb80b610ae6dc468f9f036578a7ee1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offlinePopupPrefab: {fileID: 3780142781823455981, guid: 6001f7793aad69a47863ec62fbe5b642, type: 3}
+  parent: {fileID: 1156063918}
 --- !u!1 &1106728172
 GameObject:
   m_ObjectHideFlags: 0
