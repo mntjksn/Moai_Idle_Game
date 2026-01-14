@@ -25,7 +25,7 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
 
     private bool rewardPending = false;
 
-    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioSource audioSource1, audioSource2;
 
     private void Awake()
     {
@@ -133,7 +133,7 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
             {
                 rewardPending = true;
 
-                if (Setting.IsSFXOn()) audioSource.Play();
+                if (Setting.IsSFXOn()) audioSource2.Play();
 
                 gift.SetActive(true);
                 Button.interactable = true;
@@ -150,7 +150,7 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
         {
             rewardPending = true;
 
-            if (Setting.IsSFXOn()) audioSource.Play();
+            if (Setting.IsSFXOn()) audioSource2.Play();
 
             gift.SetActive(true);
             Button.interactable = true;
@@ -243,6 +243,8 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
 
         if (data.currency.gold > data.clickclick.damage_upgrade)
         {
+            if (Setting.IsSFXOn()) audioSource1.Play();
+
             data.currency.gold -= data.clickclick.damage_upgrade;
             data.clickclick.damage += data.clickclick.damage_check / 5 + 1;
             data.clickclick.damage_upgrade += (data.clickclick.damage_check / 10 * 10) + 50;

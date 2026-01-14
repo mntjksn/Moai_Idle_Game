@@ -118,8 +118,15 @@ public class TodayMain : MonoBehaviour
     //==============================
     //      ´Ý±â ¹öÆ°
     //==============================
+    private bool closing = false;
+
     public void ClosePanel()
     {
+        if (closing) return;
+        closing = true;
+
+        PlaySFX();
+
         GameData data = SaveManager.Load();
 
         switch (giftType)
@@ -133,7 +140,12 @@ public class TodayMain : MonoBehaviour
             data.currency.gold = 2147483600;
 
         SaveManager.Save(data);
-        Destroy(gameObject);
+
+        float delay = 0.15f;
+        if (audioSource != null && audioSource.clip != null)
+            delay = audioSource.clip.length;
+
+        Destroy(gameObject, delay);
     }
 
     private void PlaySFX()

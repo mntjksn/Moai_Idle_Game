@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class TodayGift : MonoBehaviour
 {
+    [SerializeField] private AudioSource audioSource;
+
     public GameObject gift;
 
     public TextMeshProUGUI sliderText;
@@ -68,6 +70,8 @@ public class TodayGift : MonoBehaviour
 
     private void GiveReward()
     {
+        PlaySFX();
+
         data.dailyReward.rewardGivenToday = true;
         data.dailyReward.rewardCheck++;
 
@@ -76,4 +80,11 @@ public class TodayGift : MonoBehaviour
 
         SaveManager.Save(data);
     }
+
+    private void PlaySFX()
+    {
+        if (Setting.IsSFXOn())
+            audioSource.Play();
+    }
+
 }

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class OfflineRewardSystem : MonoBehaviour
 {
+    [SerializeField] private AudioSource audioSource;
+
     public static OfflineRewardSystem Instance;
 
     [Header("Offline Settings")]
@@ -10,17 +12,17 @@ public class OfflineRewardSystem : MonoBehaviour
 
     [Header("Minute-based Rewards")]
     [SerializeField] public int diaPerMinutes = 2;             // 2분당 다이아 1개
-    [SerializeField] public int ticketPerMinutes = 30;         // 30분당 티켓 1개
+    [SerializeField] public int ticketPerMinutes = 60;         // 30분당 티켓 1개
 
     [Header("Rate Settings (0.5 -> 0.05)")]
     [SerializeField] public bool useCachedTickGold = true;     // cachedGoldPerSec 사용(틱당합 캐시)
-    [SerializeField] public float maxRate = 0.50f;             // 초반 배율
-    [SerializeField] public float minRate = 0.05f;             // 극후반 배율
-    [SerializeField] public float pivotGps = 3000f;            // 감쇠 시작점(초중반 튜닝)
-    [SerializeField] public float maxGps = 300000f;            // 극후반 기준(여기서 minRate 수렴)
+    [SerializeField] public float maxRate = 0.5f;             // 초반 배율
+    [SerializeField] public float minRate = 0.025f;             // 극후반 배율
+    [SerializeField] public float pivotGps = 50f;            // 감쇠 시작점(초중반 튜닝)
+    [SerializeField] public float maxGps = 5000f;            // 극후반 기준(여기서 minRate 수렴)
 
     [Header("Gold Cap")]
-    [SerializeField] public long offlineGoldCap = 5_000_000;   // 오프라인 골드 상한(500만)
+    [SerializeField] public long offlineGoldCap = 10_000_000;   // 오프라인 골드 상한(1000만)
 
     [Header("Debug")]
     [SerializeField] public bool debugLog = false;
@@ -192,6 +194,8 @@ public class OfflineRewardSystem : MonoBehaviour
     // 보상 수령(확인 버튼에서 호출)
     public void ClaimPending()
     {
+        PlaySFX();
+
         if (!hasPendingReward) return;
 
         var data = SaveManager.Load();
@@ -238,5 +242,11 @@ public class OfflineRewardSystem : MonoBehaviour
     private void OnApplicationQuit()
     {
         SaveOfflineSnapshot();
+    }
+
+    private void PlaySFX()
+    {
+        if (Setting.IsSFXOn())
+            audioSource.Play();
     }
 }

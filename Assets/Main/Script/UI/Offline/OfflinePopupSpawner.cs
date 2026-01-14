@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class OfflinePopupSpawner : MonoBehaviour
 {
+    [SerializeField] private AudioSource audioSource;
+
     public GameObject offlinePopupPrefab; // Project의 Offline_Reward 프리팹
     public Transform parent;              // Canvas(Environment) 같은 부모
 
@@ -17,5 +19,13 @@ public class OfflinePopupSpawner : MonoBehaviour
 
         spawned = Instantiate(offlinePopupPrefab, parent);
         spawned.SetActive(true);
+
+        PlaySFX();
+    }
+
+    private void PlaySFX()
+    {
+        if (Setting.IsSFXOn())
+            audioSource.Play();
     }
 }
