@@ -1,57 +1,70 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// 캐릭터 도감(Book) 목록을 관리하는 매니저
+// - 버튼(도감 카드)을 필요 개수만큼 생성 후 캐싱
+// - Refresh 시 Destroy 없이 인덱스만 갱신하고 남는 항목은 비활성화
 public class BookManager : MonoBehaviour
 {
     public static BookManager Instance;
 
-    public GameObject buttonPrefab;       // Book 버튼 프리팹
-    public Transform contentParent;       // Content 영역
+    // Book 컴포넌트가 붙은 버튼 프리팹
+    public GameObject buttonPrefab;
 
-    private List<Book> cachedBooks = new List<Book>();   // 생성된 버튼 캐싱
+    // ScrollView Content 같은 부모
+    public Transform contentParent;
+
+    // 생성한 Book 버튼 캐싱
+    private List<Book> cachedBooks = new List<Book>();
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        // 싱글톤 유지(필요하면 DontDestroyOnLoad 추가 가능)
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
     }
 
     private void OnEnable()
     {
+        // 도감 화면이 켜질 때마다 최신 목록 반영
         Refresh();
     }
 
-    /// <summary>
-    /// Book UI 리스트 갱신 (캐싱 방식)
-    /// </summary>
+    // Book UI 리스트 갱신(캐싱 방식)
     public void Refresh()
     {
+        // 캐릭터 리스트 가져오기
         var characterList = CharacterManager.Instance.characters;
         int count = characterList.Count;
 
-        // 1) 부족하면 새로 생성
+        // 1) 캐시가 부족하면 추가 생성
         while (cachedBooks.Count < count)
         {
             GameObject obj = Instantiate(buttonPrefab, contentParent);
-            Book book = obj.GetComponent<Book>();
 
+            // 프리팹에 Book 컴포넌트가 붙어있어야 함
+            Book book = obj.GetComponent<Book>();
             if (book == null)
             {
-                Debug.LogError("buttonPrefab에 Book 컴포넌트가 없습니다!");
+                Debug.LogError("[BookManager] buttonPrefab에 Book 컴포넌트가 없습니다.");
                 break;
             }
 
             cachedBooks.Add(book);
         }
 
-        // 2) 데이터 갱신
+        // 2) 필요한 개수만큼 활성화 + 인덱스 세팅
         for (int i = 0; i < count; i++)
         {
             cachedBooks[i].gameObject.SetActive(true);
-            cachedBooks[i].index_book = i;     // Book 내부에서 SpawnCheck 자동 반응
+
+            // Book 내부에서 index_book을 기준으로 해금 여부를 체크함
+            cachedBooks[i].index_book = i;
         }
 
-        // 3) 남는 객체 비활성화(삭제 X)
+        // 3) 남는 항목은 비활성화(Destroy 금지)
         for (int i = count; i < cachedBooks.Count; i++)
         {
             cachedBooks[i].gameObject.SetActive(false);

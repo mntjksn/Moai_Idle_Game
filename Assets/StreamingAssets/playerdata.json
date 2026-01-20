@@ -1,8 +1,8 @@
 {
   "currency": {
     "gold": 0,
-    "dia": 0,
-    "ticket": 0,
+    "dia": 180,
+    "ticket": 6,
     "token": 0
   },
   "clickclick": {
@@ -17,8 +17,8 @@
     "rewardTicket": 0
   },
   "dailyReward": {
-    "lastRewardDate": "2026-01-14",
-    "playTimeToday": 0.7282030582427979,
+    "lastRewardDate": "2026-01-20",
+    "playTimeToday": 13.086797714233399,
     "playTimeTodayMax": 30,
     "rewardGivenToday": false,
     "rewardCheck": 0

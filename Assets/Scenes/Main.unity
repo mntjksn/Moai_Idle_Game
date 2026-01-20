@@ -667,6 +667,9 @@ MonoBehaviour:
   main_panel: {fileID: 979737012}
   lock_panel: {fileID: 121867730}
   Button: {fileID: 653119485}
+  useHitPopFx: 1
+  hitPopDuration: 0.12
+  hitPopStartScale: 0.85
   audioSource1: {fileID: 13991796}
   audioSource2: {fileID: 13991795}
 --- !u!82 &13991795
@@ -17726,7 +17729,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b10ec5877b478b4884b39cbce3f85e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cb: {fileID: 1369042144425868880, guid: b1006bcc3a294f84d8a8f1567880e367, type: 3}
   objPosition1: {x: 0, y: 0, z: 0}
   IsLoadingData: 0
   useMergeSpawnScaleFx: 1
@@ -17836,9 +17838,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1105283378}
-  maxOfflineHours: 12
+  maxOfflineHours: 5
   diaPerMinutes: 2
-  ticketPerMinutes: 60
+  ticketPerMinutes: 30
   useCachedTickGold: 1
   maxRate: 0.5
   minRate: 0.025
@@ -18623,7 +18625,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7e4296b0190f434889b728c7233c2ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmSource: {fileID: 519420034}
   bgmButton: {fileID: 322365335}
   sfxButton: {fileID: 1015928717}
   moveButton: {fileID: 583956658}
@@ -32854,11 +32855,9 @@ MonoBehaviour:
   mg1: {fileID: 1105283368}
   cb: {fileID: 1369042144425868880, guid: b1006bcc3a294f84d8a8f1567880e367, type: 3}
   data:
-    itemNum1: 
-    itemNum2: 
-    itemNum3: 
-    Pos1: []
-    chCount: 0
+    characters: []
+    spawncheck: 
+    upgrade: 
     save: 0
 --- !u!4 &1922468499
 Transform:

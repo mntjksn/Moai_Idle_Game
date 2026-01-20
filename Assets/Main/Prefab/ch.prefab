@@ -178,6 +178,7 @@ MonoBehaviour:
   SC: 0
   UC: 0
   chgetgold: 0
+  isMerging: 0
 --- !u!114 &1369042144425868880
 MonoBehaviour:
   m_ObjectHideFlags: 0

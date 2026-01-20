@@ -5,15 +5,19 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
-public class Item
+public class CharacterItem
 {
     public string name;
     public string sub;
+
     public int itemNum;
     public int itemgold;
+
+    // Resources.Load 경로(확장자 제외)
     public string spritePath;
     public string panelPrefabPath;
 
+    // 런타임 전용(저장 안됨)
     [System.NonSerialized] public Sprite itemimg;
     [System.NonSerialized] public GameObject panel;
 
@@ -22,21 +26,27 @@ public class Item
 }
 
 [System.Serializable]
-public class ItemListWrapper
+public class CharacterItemListWrapper
 {
-    public List<Item> items;
+    // ItemData.json의 최상위 키가 "characters" 이므로 필드명도 동일해야 한다
+    public List<CharacterItem> characters;
 }
 
 public class CharacterManager : MonoBehaviour
 {
     public static CharacterManager Instance;
 
-    public List<Item> characters = new List<Item>();
+    // 캐릭터 목록
+    public List<CharacterItem> characters = new List<CharacterItem>();
+
+    // 로드 완료 여부(다른 스크립트에서 접근 타이밍 방지용)
+    public bool IsLoaded { get; private set; }
 
     private const string JSON_NAME = "ItemData.json";
 
     private void Awake()
     {
+        // 싱글톤 유지
         if (Instance != null)
         {
             Destroy(gameObject);
@@ -46,15 +56,16 @@ public class CharacterManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // 로딩을 Awake에서 직접 하지 않고 코루틴으로 분리 → 프리즈 방지
         StartCoroutine(LoadCharactersRoutine());
     }
 
     private IEnumerator LoadCharactersRoutine()
     {
+        IsLoaded = false;
+
         string targetPath = Path.Combine(Application.persistentDataPath, JSON_NAME);
 
-        // JSON이 없을 경우 StreamingAssets에서 복사
+        // JSON이 없으면 StreamingAssets에서 복사
         if (!File.Exists(targetPath))
         {
             string streamingPath = Path.Combine(Application.streamingAssetsPath, JSON_NAME);
@@ -71,16 +82,56 @@ public class CharacterManager : MonoBehaviour
 #endif
         }
 
-        // JSON 로드
-        string json = File.ReadAllText(targetPath);
-        string wrapped = "{\"items\":" + json + "}";
-        ItemListWrapper wrapper = JsonUtility.FromJson<ItemListWrapper>(wrapped);
-
-        characters = wrapper.items ?? new List<Item>();
-
-        // 스프라이트 / 프리팹 로딩 최적화
-        foreach (var item in characters)
+        // 파일이 여전히 없으면 빈 리스트
+        if (!File.Exists(targetPath))
         {
+            characters = new List<CharacterItem>();
+            IsLoaded = true;
+            yield break;
+        }
+
+        // JSON 읽기
+        string json = File.ReadAllText(targetPath);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            characters = new List<CharacterItem>();
+            IsLoaded = true;
+            yield break;
+        }
+
+        json = json.TrimStart();
+
+        // 배열 JSON / wrapper JSON 모두 대응
+        CharacterItemListWrapper wrapper = null;
+
+        try
+        {
+            if (json.StartsWith("["))
+            {
+                // 배열만 있을 경우 "characters"로 감싸서 파싱
+                string wrapped = "{\"characters\":" + json + "}";
+                wrapper = JsonUtility.FromJson<CharacterItemListWrapper>(wrapped);
+            }
+            else
+            {
+                // {"characters":[...]} 형태면 그대로 파싱
+                wrapper = JsonUtility.FromJson<CharacterItemListWrapper>(json);
+            }
+        }
+        catch
+        {
+            wrapper = null;
+        }
+
+        characters = (wrapper != null && wrapper.characters != null)
+            ? wrapper.characters
+            : new List<CharacterItem>();
+
+        // 리소스 로드(1회)
+        for (int i = 0; i < characters.Count; i++)
+        {
+            CharacterItem item = characters[i];
+
             if (!string.IsNullOrEmpty(item.spritePath))
                 item.itemimg = Resources.Load<Sprite>(item.spritePath);
 
@@ -88,19 +139,37 @@ public class CharacterManager : MonoBehaviour
                 item.panel = Resources.Load<GameObject>(item.panelPrefabPath);
         }
 
+        IsLoaded = true;
         yield break;
     }
 
-    public Item GetItem(int index)
+    // 리스트 인덱스로 가져오기
+    public CharacterItem GetItem(int index)
     {
         if (index < 0 || index >= characters.Count)
         {
-            Debug.LogError($"[CharacterManager] 잘못된 인덱스 요청: {index}");
+            Debug.LogError("[CharacterManager] 잘못된 인덱스 요청: " + index);
             return null;
         }
 
         return characters[index];
     }
 
-    public int GetCount() => characters.Count;
+    // itemNum으로 가져오기(세이브/로드 용)
+    public CharacterItem GetItemByItemNum(int itemNum)
+    {
+        for (int i = 0; i < characters.Count; i++)
+        {
+            CharacterItem item = characters[i];
+            if (item != null && item.itemNum == itemNum)
+                return item;
+        }
+
+        return null;
+    }
+
+    public int GetCount()
+    {
+        return characters.Count;
+    }
 }

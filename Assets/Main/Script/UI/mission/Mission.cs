@@ -2,8 +2,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 개별 미션 UI 하나를 담당하는 클래스
+// - 진행도 표시
+// - 보상 수령 처리
+// - MissionManager에서 index를 받아 초기화됨
 public class Mission : MonoBehaviour
 {
+    // 미션 인덱스 (MissionManager에서 주입)
     public int index_misson;
 
     [Header("UI")]
@@ -15,30 +20,37 @@ public class Mission : MonoBehaviour
 
     [SerializeField] private AudioSource audioSource;
 
-    private MissionData mission;  // ★ 캐싱용
-    private GameData data;        // ★ 캐싱용
+    // 데이터 캐싱
+    private MissionData mission;
+    private GameData data;
 
     private void Awake()
     {
         Input.multiTouchEnabled = false;
+
+        // 기본 상태: 보상 버튼 비활성
         button.interactable = false;
+
+        // 보상 버튼 클릭 이벤트
         button.onClick.AddListener(OnMissionClick);
     }
 
-    // ★ MissonManager에서 index 받아서 설정
+    /// <summary>
+    /// MissionManager에서 미션 인덱스를 전달받아 초기화
+    /// </summary>
     public void Setup(int index)
     {
         index_misson = index;
-        Refresh();  // UI 1회 갱신
+        Refresh();  // 최초 UI 갱신
     }
 
     private void OnEnable()
     {
-        Refresh();
+        Refresh(); // 패널 열릴 때 최신 상태 반영
     }
 
     /// <summary>
-    /// ★ 데이터 & UI 한 번만 갱신
+    /// 미션 데이터 로드 + UI 갱신
     /// </summary>
     private void Refresh()
     {
@@ -47,12 +59,12 @@ public class Mission : MonoBehaviour
 
         if (mission == null) return;
 
-        // 텍스트
+        // 텍스트 갱신
         main_text.text = mission.desc;
         button_text.text = $"{mission.reward:#,0}개";
         slider_text.text = $"{mission.current:#,0} / {mission.max:#,0}";
 
-        // 슬라이더
+        // 슬라이더 진행도
         slider.maxValue = mission.max;
         slider.value = mission.current;
 
@@ -60,12 +72,13 @@ public class Mission : MonoBehaviour
         if (mission.icon != null)
             image.sprite = mission.icon;
 
-        // 버튼 활성화
+        // 보상 수령 가능 여부
         button.interactable = mission.current >= mission.max;
     }
 
     /// <summary>
-    /// 각 미션 데이터를 구조화해서 가져오기
+    /// index에 따른 미션 데이터를 구조화해서 반환
+    /// (읽기 전용)
     /// </summary>
     private MissionData GetMissionData(GameData d)
     {
@@ -73,49 +86,56 @@ public class Mission : MonoBehaviour
         {
             case 0:
                 return new MissionData(
-                    d.missions.mission_2_value, d.missions.mission_2_max,
+                    d.missions.mission_2_value,
+                    d.missions.mission_2_max,
                     d.missions.mission_2_reward,
                     "신규 모아이를 획득하세요.",
                     Resources.Load<Sprite>("dia"));
 
             case 1:
                 return new MissionData(
-                    d.missions.mission_3_value, d.missions.mission_3_max,
+                    d.missions.mission_3_value,
+                    d.missions.mission_3_max,
                     d.missions.mission_3_reward,
                     "모아이를 소환하세요.",
                     Resources.Load<Sprite>("gold"));
 
             case 2:
                 return new MissionData(
-                    d.missions.mission_4_value, d.missions.mission_4_max,
+                    d.missions.mission_4_value,
+                    d.missions.mission_4_max,
                     d.missions.mission_4_reward,
                     "모아이를 합치세요.",
                     Resources.Load<Sprite>("gold"));
 
             case 3:
                 return new MissionData(
-                    d.missions.mission_5_value, d.missions.mission_5_max,
+                    d.missions.mission_5_value,
+                    d.missions.mission_5_max,
                     d.missions.mission_5_reward,
                     "모아이를 통해 돌멩이를 획득하세요.",
                     Resources.Load<Sprite>("gold"));
 
             case 4:
                 return new MissionData(
-                    d.missions.mission_6_value, d.missions.mission_6_max,
+                    d.missions.mission_6_value,
+                    d.missions.mission_6_max,
                     d.missions.mission_6_reward,
                     "행운 시험을 이용하세요.",
                     Resources.Load<Sprite>("dia"));
 
             case 5:
                 return new MissionData(
-                    d.missions.mission_7_value, d.missions.mission_7_max,
+                    d.missions.mission_7_value,
+                    d.missions.mission_7_max,
                     d.missions.mission_7_reward,
                     "깜짝상자를 획득하세요.",
                     Resources.Load<Sprite>("dia"));
 
             case 6:
                 return new MissionData(
-                    d.missions.mission_8_value, d.missions.mission_8_max,
+                    d.missions.mission_8_value,
+                    d.missions.mission_8_max,
                     d.missions.mission_8_reward,
                     "업그레이드를 이용하세요.",
                     Resources.Load<Sprite>("ticket"));
@@ -125,9 +145,9 @@ public class Mission : MonoBehaviour
     }
 
     /// <summary>
-    /// 보상 버튼 클릭
+    /// 보상 수령 버튼 클릭 처리
     /// </summary>
-    public void OnMissionClick()
+    private void OnMissionClick()
     {
         data = SaveManager.Load();
 
@@ -144,87 +164,46 @@ public class Mission : MonoBehaviour
                 break;
 
             case 1:
-                data.currency.gold += data.missions.mission_3_reward;
-                data.missions.mission_3_value -= data.missions.mission_3_max;
-
-                if (data.missions.mission_3_max >= 100)
-                    data.missions.mission_3_max = 100;
-                else
-                {
-                    data.missions.mission_3_tic++;
-                    data.missions.mission_3_max += 2;
-
-                    if (data.currency.gold < 2147483600)
-                        data.missions.mission_3_reward += data.missions.mission_3_reward / 20 + data.missions.mission_3_tic * 10;
-                    else
-                        data.currency.gold = 2147483600;
-                }
+                HandleGoldMission(
+                    ref data.missions.mission_3_value,
+                    ref data.missions.mission_3_max,
+                    ref data.missions.mission_3_reward,
+                    ref data.missions.mission_3_tic,
+                    10);
                 break;
 
             case 2:
-                data.currency.gold += data.missions.mission_4_reward;
-                data.missions.mission_4_value -= data.missions.mission_4_max;
-
-                if (data.missions.mission_4_max >= 100)
-                    data.missions.mission_4_max = 100;
-                else
-                {
-                    data.missions.mission_4_tic++;
-                    data.missions.mission_4_max += 2;
-
-                    if (data.currency.gold < 2147483600)
-                        data.missions.mission_4_reward += data.missions.mission_4_reward / 20 + data.missions.mission_4_tic * 15;
-                    else
-                        data.currency.gold = 2147483600;
-                }
+                HandleGoldMission(
+                    ref data.missions.mission_4_value,
+                    ref data.missions.mission_4_max,
+                    ref data.missions.mission_4_reward,
+                    ref data.missions.mission_4_tic,
+                    15);
                 break;
 
             case 3:
                 data.currency.gold += data.missions.mission_5_reward;
                 data.missions.mission_5_value -= data.missions.mission_5_max;
-
-                if (data.missions.mission_5_max >= 1000000)
-                    data.missions.mission_5_max = 1000000;
-                else
-                {
-                    data.missions.mission_5_tic++;
-                    data.missions.mission_5_max += data.missions.mission_5_max / 5;
-
-                    if (data.currency.gold < 2147483600)
-                        data.missions.mission_5_reward = data.missions.mission_5_max / 2 + data.missions.mission_5_tic * 20;
-                    else
-                        data.currency.gold = 2147483600;
-                }
+                data.missions.mission_5_tic++;
+                data.missions.mission_5_max += data.missions.mission_5_max / 5;
+                data.missions.mission_5_reward =
+                    data.missions.mission_5_max / 2 + data.missions.mission_5_tic * 20;
                 break;
 
             case 4:
                 data.currency.dia += data.missions.mission_6_reward;
                 data.missions.mission_6_value -= data.missions.mission_6_max;
-
-                if (data.missions.mission_6_max >= 10)
-                    data.missions.mission_6_max = 10;
-                else
-                {
-                    data.missions.mission_6_tic++;
-                    data.missions.mission_6_max += 1;
-                    data.missions.mission_6_reward += 5 * (data.missions.mission_6_tic / 5 + 1);
-                }
-
+                data.missions.mission_6_tic++;
+                data.missions.mission_6_max += 1;
+                data.missions.mission_6_reward += 5 * (data.missions.mission_6_tic / 5 + 1);
                 break;
 
             case 5:
                 data.currency.dia += data.missions.mission_7_reward;
                 data.missions.mission_7_value -= data.missions.mission_7_max;
-
-                if (data.missions.mission_7_max >= 10)
-                    data.missions.mission_7_max = 10;
-                else
-                {
-                    data.missions.mission_7_tic++;
-                    data.missions.mission_7_max += 1;
-                    data.missions.mission_7_reward += 10 * (data.missions.mission_7_tic / 5 + 1);
-                }
-
+                data.missions.mission_7_tic++;
+                data.missions.mission_7_max += 1;
+                data.missions.mission_7_reward += 10 * (data.missions.mission_7_tic / 5 + 1);
                 break;
 
             case 6:
@@ -236,15 +215,34 @@ public class Mission : MonoBehaviour
         }
 
         SaveManager.Save(data);
+        Refresh(); // UI 즉시 갱신
+    }
 
-        // UI 갱신
-        Refresh();
+    /// <summary>
+    /// 골드 보상 계열 미션 공통 처리
+    /// </summary>
+    private void HandleGoldMission(
+        ref int value, ref int max, ref int reward, ref int tic, int rewardMul)
+    {
+        data.currency.gold += reward;
+        value -= max;
+
+        tic++;
+        max += 2;
+
+        reward += reward / 20 + tic * rewardMul;
+
+        if (data.currency.gold > 2147483600)
+            data.currency.gold = 2147483600;
     }
 }
 
+// 미션 UI 표시용 데이터 구조체
 public class MissionData
 {
-    public int current, max, reward;
+    public int current;
+    public int max;
+    public int reward;
     public string desc;
     public Sprite icon;
 

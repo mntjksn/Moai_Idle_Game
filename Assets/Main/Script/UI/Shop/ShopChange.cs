@@ -1,39 +1,50 @@
 using UnityEngine;
 
+// 상점 탭(골드 / 다이아 / 토큰) 전환을 담당하는 스크립트
 public class ShopChange : MonoBehaviour
 {
-    public GameObject gold_panel, dia_panel, token_panel;
+    // 각 상점 패널
+    public GameObject gold_panel;
+    public GameObject dia_panel;
+    public GameObject token_panel;
 
-    // Start is called before the first frame update
-
+    // 패널이 활성화될 때 기본 탭 설정
     private void OnEnable()
     {
-        gold_panel.SetActive(true);
-        dia_panel.SetActive(false);
-        token_panel.SetActive(false);
+        // 기본은 골드 상점
+        SetActivePanel(gold_panel);
     }
 
-public void ClickShop(string name)
+    // 버튼 클릭으로 상점 탭 전환
+    // name 값은 버튼에서 문자열로 전달됨 ("gold", "dia", "token")
+    public void ClickShop(string name)
     {
-        if (name == "gold")
+        switch (name)
         {
-            gold_panel.SetActive(true);
-            dia_panel.SetActive(false);
-            token_panel.SetActive(false);
+            case "gold":
+                SetActivePanel(gold_panel);
+                break;
+
+            case "dia":
+                SetActivePanel(dia_panel);
+                break;
+
+            case "token":
+                SetActivePanel(token_panel);
+                break;
         }
-        else if (name == "dia")
-        {
-            gold_panel.SetActive(false);
-            dia_panel.SetActive(true);
-            token_panel.SetActive(false);
-        }
-        else if (name == "token")
-        {
-            gold_panel.SetActive(false);
-            dia_panel.SetActive(false);
-            token_panel.SetActive(true);
-        }
-        else
-            return;
+    }
+
+    // 하나만 켜고 나머지는 끄는 공통 처리
+    private void SetActivePanel(GameObject active)
+    {
+        if (gold_panel != null)
+            gold_panel.SetActive(active == gold_panel);
+
+        if (dia_panel != null)
+            dia_panel.SetActive(active == dia_panel);
+
+        if (token_panel != null)
+            token_panel.SetActive(active == token_panel);
     }
 }

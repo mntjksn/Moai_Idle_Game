@@ -1,24 +1,31 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// 미션 완료 여부를 감지해서
+// 미션 버튼의 색상을 변경해주는 역할
 public class mission_check : MonoBehaviour
 {
     private Button btn;
 
-    // 캐싱용
+    // GameData 캐싱
     private GameData cachedData;
-    private float checkInterval = 0.15f;  // 0.15초마다 데이터 새로 읽기
+
+    // SaveManager.Load() 호출 빈도 제한용
+    private float checkInterval = 0.15f;  // 0.15초마다 갱신
     private float timer = 0f;
 
-    void Start()
+    private void Start()
     {
+        // 버튼 캐싱
         btn = GetComponent<Button>();
-        cachedData = SaveManager.Load();   // 시작 시 1회 로드
+
+        // 시작 시 1회 데이터 로드
+        cachedData = SaveManager.Load();
     }
 
-    void Update()
+    private void Update()
     {
-        // 일정 주기로만 SaveManager.Load() 수행
+        // 일정 주기로만 데이터 다시 읽기 (성능 최적화)
         timer += Time.deltaTime;
         if (timer >= checkInterval)
         {
@@ -28,7 +35,7 @@ public class mission_check : MonoBehaviour
 
         var data = cachedData;
 
-        // 미션 완료 여부 판단
+        // 하나라도 완료 가능한 미션이 있는지 체크
         bool anyComplete =
             data.missions.mission_2_value >= data.missions.mission_2_max ||
             data.missions.mission_3_value >= data.missions.mission_3_max ||
@@ -40,8 +47,10 @@ public class mission_check : MonoBehaviour
 
         // 버튼 색상 변경
         var colors = btn.colors;
+
+        // 미션 완료 가능 시 강조 색상
         colors.normalColor = anyComplete
-            ? new Color(1f, 0.6f, 0f, 1f)  // 주황
+            ? new Color(1f, 0.6f, 0f, 1f)  // 주황색
             : Color.white;
 
         btn.colors = colors;

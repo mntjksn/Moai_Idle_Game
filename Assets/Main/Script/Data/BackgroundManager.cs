@@ -5,52 +5,68 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [Serializable]
-public class Item2
+public class BackgroundItem
 {
     public string name;
     public string sub;
     public string sub2;
+
+    // Resources.Load 경로(확장자 제외)
     public string spritePath;
     public string panelPrefabPath;
 
+    // 런타임 전용(저장 안됨)
     [NonSerialized] public Sprite itemimg;
     [NonSerialized] public GameObject panel;
 
+    // 해금 여부
     public bool spawncheck;
 }
 
 [Serializable]
-public class Item2ListWrapper { public List<Item2> items2; }
-
+public class BackgroundItemListWrapper
+{
+    // BackgroundData.json의 최상위 키가 "backgrounds" 이므로 필드명도 동일해야 한다
+    public List<BackgroundItem> backgrounds;
+}
 
 public class BackgroundManager : MonoBehaviour
 {
     public static BackgroundManager Instance;
 
-    public List<Item2> backgrounds = new List<Item2>();
+    public List<BackgroundItem> backgrounds = new List<BackgroundItem>();
 
     public int SelectedIndex { get; private set; } = 0;
 
     public event Action<int> OnBackgroundSelected;
 
-    const string KEY_BG_INDEX = "bg_index";
-    const string JSON_NAME = "BackgroundData.json";
+    public bool IsLoaded { get; private set; }
+
+    private const string KEY_BG_INDEX = "bg_index";
+    private const string JSON_NAME = "BackgroundData.json";
 
     private void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); return; }
+        // 싱글톤 유지
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
         LoadBackground();
 
+        // 선택 인덱스 적용(범위 보정)
         SelectedIndex = Mathf.Clamp(
             PlayerPrefs.GetInt(KEY_BG_INDEX, 0),
             0,
             Mathf.Max(0, backgrounds.Count - 1)
         );
 
+        // 잠긴 배경이면 첫 해금 배경으로 변경
         if (!IsUnlocked(SelectedIndex))
             SelectedIndex = FirstUnlockedIndex();
 
@@ -59,10 +75,14 @@ public class BackgroundManager : MonoBehaviour
 
     public void SelectBackground(int index)
     {
-        if (index < 0 || index >= backgrounds.Count || !IsUnlocked(index))
+        if (index < 0 || index >= backgrounds.Count)
+            return;
+
+        if (!IsUnlocked(index))
             return;
 
         SelectedIndex = index;
+
         PlayerPrefs.SetInt(KEY_BG_INDEX, SelectedIndex);
         PlayerPrefs.Save();
 
@@ -71,11 +91,16 @@ public class BackgroundManager : MonoBehaviour
     }
 
     public bool IsUnlocked(int index)
-        => index >= 0 && index < backgrounds.Count && backgrounds[index].spawncheck;
+    {
+        return index >= 0 &&
+               index < backgrounds.Count &&
+               backgrounds[index].spawncheck;
+    }
 
     public void UnlockBackground(int index, bool selectIfNone = false)
     {
-        if (index < 0 || index >= backgrounds.Count) return;
+        if (index < 0 || index >= backgrounds.Count)
+            return;
 
         if (!backgrounds[index].spawncheck)
         {
@@ -90,72 +115,102 @@ public class BackgroundManager : MonoBehaviour
     private int FirstUnlockedIndex()
     {
         for (int i = 0; i < backgrounds.Count; i++)
+        {
             if (backgrounds[i].spawncheck)
                 return i;
+        }
 
         return 0;
     }
 
     private void LoadBackground()
     {
+        IsLoaded = false;
+
         string persistentPath = Path.Combine(Application.persistentDataPath, JSON_NAME);
 
-        // JSON이 없으면 StreamingAssets → persistentDataPath로 복사
+        // JSON이 없으면 StreamingAssets에서 복사
+        EnsureJsonExists(persistentPath);
+
         if (!File.Exists(persistentPath))
         {
-            string streaming = Path.Combine(Application.streamingAssetsPath, JSON_NAME);
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-            UnityWebRequest req = UnityWebRequest.Get(streaming);
-            req.SendWebRequest();
-            while (!req.isDone) { }
-
-            if (!req.isHttpError && !req.isNetworkError)
-                File.WriteAllText(persistentPath, req.downloadHandler.text);
-#else
-            if (File.Exists(streaming))
-                File.Copy(streaming, persistentPath, true);
-#endif
+            backgrounds = new List<BackgroundItem>();
+            IsLoaded = true;
+            return;
         }
 
-        // JSON 파일 로드
-        string json = File.ReadAllText(persistentPath).TrimStart();
+        string json = File.ReadAllText(persistentPath);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            backgrounds = new List<BackgroundItem>();
+            IsLoaded = true;
+            return;
+        }
 
-        Item2ListWrapper wrapper;
+        json = json.TrimStart();
+
+        BackgroundItemListWrapper wrapper = null;
 
         try
         {
             if (json.StartsWith("["))
-                wrapper = JsonUtility.FromJson<Item2ListWrapper>("{\"items2\":" + json + "}");
+            {
+                // 배열만 있을 경우 "backgrounds"로 감싸서 파싱
+                string wrapped = "{\"backgrounds\":" + json + "}";
+                wrapper = JsonUtility.FromJson<BackgroundItemListWrapper>(wrapped);
+            }
             else
-                wrapper = JsonUtility.FromJson<Item2ListWrapper>(json);
-
-            if (wrapper?.items2 == null)
             {
-                backgrounds = new List<Item2>();
-                return;
+                // {"backgrounds":[...]} 형태면 그대로 파싱
+                wrapper = JsonUtility.FromJson<BackgroundItemListWrapper>(json);
             }
-
-            backgrounds = wrapper.items2;
-
-            // 리소스 로드를 한 번만 수행
-            foreach (var it in backgrounds)
-            {
-                if (!string.IsNullOrEmpty(it.spritePath))
-                    it.itemimg = Resources.Load<Sprite>(it.spritePath);
-
-                if (!string.IsNullOrEmpty(it.panelPrefabPath))
-                    it.panel = Resources.Load<GameObject>(it.panelPrefabPath);
-            }
-
-            // 첫 배경 자동 해금
-            if (!backgrounds.Exists(b => b.spawncheck) && backgrounds.Count > 0)
-                backgrounds[0].spawncheck = true;
         }
         catch
         {
-            backgrounds = new List<Item2>();
+            wrapper = null;
         }
+
+        backgrounds = (wrapper != null && wrapper.backgrounds != null)
+            ? wrapper.backgrounds
+            : new List<BackgroundItem>();
+
+        // 리소스 로드(1회)
+        for (int i = 0; i < backgrounds.Count; i++)
+        {
+            BackgroundItem it = backgrounds[i];
+
+            if (!string.IsNullOrEmpty(it.spritePath))
+                it.itemimg = Resources.Load<Sprite>(it.spritePath);
+
+            if (!string.IsNullOrEmpty(it.panelPrefabPath))
+                it.panel = Resources.Load<GameObject>(it.panelPrefabPath);
+        }
+
+        // 전부 잠겨있으면 첫 배경 자동 해금
+        if (!backgrounds.Exists(b => b.spawncheck) && backgrounds.Count > 0)
+            backgrounds[0].spawncheck = true;
+
+        IsLoaded = true;
+    }
+
+    private void EnsureJsonExists(string persistentPath)
+    {
+        if (File.Exists(persistentPath))
+            return;
+
+        string streamingPath = Path.Combine(Application.streamingAssetsPath, JSON_NAME);
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        UnityWebRequest req = UnityWebRequest.Get(streamingPath);
+        req.SendWebRequest();
+        while (!req.isDone) { }
+
+        if (!req.isNetworkError && !req.isHttpError)
+            File.WriteAllText(persistentPath, req.downloadHandler.text);
+#else
+        if (File.Exists(streamingPath))
+            File.Copy(streamingPath, persistentPath, true);
+#endif
     }
 
     public void SaveBackground()
@@ -163,13 +218,16 @@ public class BackgroundManager : MonoBehaviour
         try
         {
             string path = Path.Combine(Application.persistentDataPath, JSON_NAME);
-            Item2ListWrapper wrapper = new Item2ListWrapper { items2 = backgrounds };
+            BackgroundItemListWrapper wrapper = new BackgroundItemListWrapper { backgrounds = backgrounds };
             File.WriteAllText(path, JsonUtility.ToJson(wrapper, true));
         }
-        catch { }
+        catch
+        {
+            // 저장 실패는 무시
+        }
     }
 
-    public Item2 GetItem(int index)
+    public BackgroundItem GetItem(int index)
     {
         if (index < 0 || index >= backgrounds.Count)
             return null;
@@ -177,5 +235,8 @@ public class BackgroundManager : MonoBehaviour
         return backgrounds[index];
     }
 
-    public int GetCount() => backgrounds.Count;
+    public int GetCount()
+    {
+        return backgrounds.Count;
+    }
 }

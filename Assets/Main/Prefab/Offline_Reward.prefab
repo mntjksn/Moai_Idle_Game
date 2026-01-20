@@ -1995,7 +1995,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC624\uD504\uB77C\uC778 \uACBD\uACFC \uC2DC\uAC04 (\uCD5C\uB300 12\uC2DC\uAC04)"
+  m_text: "\uC624\uD504\uB77C\uC778 \uACBD\uACFC \uC2DC\uAC04 (\uCD5C\uB300 5\uC2DC\uAC04)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 69b2cd06285543d41ae1cfb95ae98b5b, type: 2}
   m_sharedMaterial: {fileID: -2929473610773117776, guid: 69b2cd06285543d41ae1cfb95ae98b5b, type: 2}
