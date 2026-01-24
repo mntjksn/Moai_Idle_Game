@@ -324,13 +324,11 @@ public static class SaveManager
         if (req.result == UnityWebRequest.Result.Success)
         {
             File.WriteAllBytes(FilePath, req.downloadHandler.data);
-            if (DebugMode) Debug.Log("[SaveManager] 기본 파일 복사 완료(안드로이드)");
         }
         else
         {
             // 기본 파일을 못 읽으면 새 데이터 생성
             File.WriteAllText(FilePath, JsonUtility.ToJson(new GameData(), true));
-            if (DebugMode) Debug.Log("[SaveManager] 기본 파일 복사 실패로 새 데이터 생성(안드로이드)");
         }
 #else
         if (File.Exists(streaming))

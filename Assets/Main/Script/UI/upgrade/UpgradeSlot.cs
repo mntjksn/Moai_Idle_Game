@@ -4,11 +4,16 @@ using UnityEngine.UI;
 
 // 업그레이드 슬롯 1칸 UI 컨트롤러
 // - index(캐릭터 레벨)에 해당하는 업그레이드 구매 UI를 표시
-// - Update 없이 Refresh() 호출로만 갱신(권장)
+// - ★중요: Instantiate 직후 OnEnable이 먼저 실행될 수 있어서,
+//          index가 세팅되기 전(0) Refresh가 돌면 index-1=-1 문제가 생김
+// - 해결: Setup() 완료(initialized=true) 이후에만 Refresh() 수행
 public class UpgradeSlot : MonoBehaviour
 {
     [Header("Data")]
-    public int index; // 캐릭터 레벨 인덱스
+    public int index; // 캐릭터 레벨 인덱스 (1부터 시작한다고 가정)
+
+    // Instantiate 직후 OnEnable 방어용
+    private bool initialized = false;
 
     [Header("Panels")]
     public GameObject mainPanel; // 기본 패널(구매 UI)
@@ -24,7 +29,7 @@ public class UpgradeSlot : MonoBehaviour
     [Header("SFX")]
     [SerializeField] private AudioSource audioSource;
 
-    // 현재 슬롯이 바라보는 캐릭터 데이터(필요 시 Refresh에서 다시 가져옴)
+    // 현재 슬롯이 바라보는 캐릭터 데이터
     private CharacterItem item;
 
     private void Awake()
@@ -39,7 +44,20 @@ public class UpgradeSlot : MonoBehaviour
 
     private void OnEnable()
     {
+        // ★ Instantiate 직후(Setup 전)에는 Refresh하지 않는다
+        if (!initialized) return;
+
         // 슬롯이 켜질 때마다 최신 상태로 1회 갱신
+        Refresh();
+    }
+
+    // UpgradeManager가 Instantiate 후 index를 세팅한 다음 꼭 호출해줘야 함.
+    public void Setup(int idx)
+    {
+        index = idx;
+        initialized = true;
+
+        // 세팅 완료 즉시 1회 갱신
         Refresh();
     }
 
@@ -47,6 +65,13 @@ public class UpgradeSlot : MonoBehaviour
     // - Update 대신 외부(Manager)에서 필요할 때 호출하는 방식 권장
     public void Refresh()
     {
+        // ★ 방어: index가 1 미만이면 잘못된 슬롯이므로 숨김
+        if (index < 1)
+        {
+            SetVisible(false);
+            return;
+        }
+
         // 최신 데이터 참조 확보
         item = CharacterManager.Instance?.GetItem(index);
         if (item == null)
@@ -55,16 +80,18 @@ public class UpgradeSlot : MonoBehaviour
             return;
         }
 
+        // 텍스트/이미지 반영
         RefreshTexts(item);
+
+        // 패널/버튼 상태 반영
         UpdateSlotState(item);
     }
 
-    // -----------------------------
-    // 텍스트/이미지 반영
-    // -----------------------------
+    //     UI: Text / Image
     private void RefreshTexts(CharacterItem it)
     {
-        if (icon != null) icon.sprite = it.itemimg;
+        if (icon != null)
+            icon.sprite = it.itemimg;
 
         if (nameText != null)
             nameText.text = $"{index}. {it.name} 업그레이드";
@@ -76,33 +103,47 @@ public class UpgradeSlot : MonoBehaviour
             buyText.text = $"{GetUpgradeCost(index):N0} 다이아";
     }
 
-    // -----------------------------
-    // 상태(패널/버튼) 반영
-    // -----------------------------
+    //   UI: Panel / Button State
     private void UpdateSlotState(CharacterItem it)
     {
-        bool spawned = it.spawncheck;
-        if (!spawned)
+        // 1) 스폰 전이면 숨김
+        if (!it.spawncheck)
         {
-            // 스폰 전이면 숨김
             SetVisible(false);
             return;
         }
 
-        // 첫 슬롯(1번)은 spawncheck만 만족하면 표시
-        // 나머지는 "이전 캐릭터 업그레이드 완료"가 선행 조건
-        bool prevUnlocked = (index == 1) || (CharacterManager.Instance?.GetItem(index - 1)?.upgrade ?? false);
+        // 2) 이전 캐릭터 업그레이드 조건
+        // - index==1은 이전 캐릭터가 없으므로 무조건 통과
+        // - index>1은 index-1이 유효한지 체크 후 upgrade 여부 확인
+        bool prevUnlocked = true;
+
+        if (index > 1)
+        {
+            var prev = CharacterManager.Instance?.GetItem(index - 1);
+
+            // prev가 null이면(데이터 부족/인덱스 꼬임) 안전하게 숨김
+            if (prev == null)
+            {
+                SetVisible(false);
+                return;
+            }
+
+            prevUnlocked = prev.upgrade;
+        }
+
         if (!prevUnlocked)
         {
             SetVisible(false);
             return;
         }
 
-        // 여기부터는 표시 대상
-        mainPanel?.SetActive(true);
+        // 3) 여기부터는 표시 대상
+        if (mainPanel != null) mainPanel.SetActive(true);
 
         bool upgraded = it.upgrade;
-        endPanel?.SetActive(upgraded);
+
+        if (endPanel != null) endPanel.SetActive(upgraded);
 
         if (upgradeBtn != null)
             upgradeBtn.interactable = !upgraded;
@@ -110,38 +151,43 @@ public class UpgradeSlot : MonoBehaviour
 
     private void SetVisible(bool visible)
     {
+        // mainPanel이 켜져야 UI가 보임
         if (mainPanel != null) mainPanel.SetActive(visible);
-        if (endPanel != null) endPanel.SetActive(false); // 숨길 때는 완료 패널도 같이 꺼둠
 
-        if (upgradeBtn != null)
-            upgradeBtn.interactable = false;
+        // 숨길 때는 완료 패널도 같이 꺼둠
+        if (!visible && endPanel != null) endPanel.SetActive(false);
+
+        // 숨길 때는 버튼도 비활성
+        if (!visible && upgradeBtn != null) upgradeBtn.interactable = false;
     }
 
-    // -----------------------------
-    // 구매 처리
-    // -----------------------------
+    //        Purchase
     public void OnUpgrade()
     {
-        // 최신 데이터 다시 확보(안전)
+        // ★ 안전: 구매 시점에도 다시 최신 참조
         item = CharacterManager.Instance?.GetItem(index);
         if (item == null) return;
 
-        // 이미 업그레이드면 무시
+        // 이미 업그레이드면 종료
         if (item.upgrade) return;
 
         GameData data = SaveManager.Load();
         int cost = GetUpgradeCost(index);
 
+        // 재화 부족
         if (data.currency.dia < cost)
         {
             AppearTextManager.Instance.Show("다이아가 부족합니다!");
             return;
         }
 
+        // SFX
         PlaySFX();
 
-        // 재화 차감 + 업그레이드 적용
+        // 재화 차감
         data.currency.dia -= cost;
+
+        // 캐릭터 업그레이드 플래그 (데이터가 Scriptable/런타임 데이터라면 이 방식 OK)
         item.upgrade = true;
 
         // 현재 배치된 캐릭터들에 UC 반영
@@ -155,6 +201,7 @@ public class UpgradeSlot : MonoBehaviour
         if (OfflineRewardSystem.Instance != null)
             data.offline.cachedGoldPerSec = OfflineRewardSystem.Instance.CalculateGoldPerTick();
 
+        // 저장
         SaveManager.Save(data);
 
         // 내 슬롯 즉시 갱신 + 전체 슬롯도 갱신
@@ -168,9 +215,7 @@ public class UpgradeSlot : MonoBehaviour
             audioSource.Play();
     }
 
-    // -----------------------------
-    // 유틸
-    // -----------------------------
+    //          Util
     private int GetUpgradeCost(int idx)
     {
         // 기존 수식 그대로 함수화(중복 제거)
@@ -179,6 +224,7 @@ public class UpgradeSlot : MonoBehaviour
 
     private void ApplyUpgradeToSpawnedCharacters(int levelIndex)
     {
+        // 프로젝트에서 chp를 Tag로 쓰는 구조 그대로
         Transform chp = GameObject.FindGameObjectWithTag("chp")?.transform;
         if (chp == null) return;
 
