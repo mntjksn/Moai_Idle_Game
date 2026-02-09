@@ -224,7 +224,6 @@ public class UpgradeSlot : MonoBehaviour
 
     private void ApplyUpgradeToSpawnedCharacters(int levelIndex)
     {
-        // 프로젝트에서 chp를 Tag로 쓰는 구조 그대로
         Transform chp = GameObject.FindGameObjectWithTag("chp")?.transform;
         if (chp == null) return;
 
