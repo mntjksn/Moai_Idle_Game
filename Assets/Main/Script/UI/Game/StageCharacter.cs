@@ -40,6 +40,8 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
     [SerializeField] private bool useHitPopFx = true;
     [SerializeField] private float hitPopDuration = 0.12f;
     [SerializeField] private float hitPopStartScale = 0.85f;
+    private Coroutine hitPopCo;
+    private bool hitPopPlaying = false;
 
     // 세이브 데이터 / 현재 스테이지 캐릭터 데이터
     private GameData data;
@@ -266,26 +268,29 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
     // 피격 플래시 시작
     private void HitFlash()
     {
-        if (image == null)
-            return;
+        if (image == null) return;
 
         isHit = true;
         hitTimer = 0f;
         image.color = hitColor;
 
-        // ★ 피격 팝 연출
-        if (useHitPopFx)
-            StartCoroutine(HitPopFx(image.transform));
+        // 피격 팝 연출 (중복 방지)
+        if (useHitPopFx && !hitPopPlaying)
+        {
+            if (hitPopCo != null) StopCoroutine(hitPopCo);
+            hitPopCo = StartCoroutine(HitPopFx(image.transform));
+        }
     }
 
     // 피격 시 스케일 팝 연출
     private IEnumerator HitPopFx(Transform t)
     {
-        if (t == null)
-            yield break;
+        if (t == null) yield break;
 
-        Vector3 target = t.localScale;
-        Vector3 start = target * Mathf.Clamp(hitPopStartScale, 0.01f, 1f);
+        hitPopPlaying = true;
+
+        Vector3 original = t.localScale; // "진짜 원래 스케일" 고정
+        Vector3 start = original * Mathf.Clamp(hitPopStartScale, 0.01f, 1f);
 
         t.localScale = start;
 
@@ -294,23 +299,23 @@ public class StageCharacter : MonoBehaviour, IPointerClickHandler
 
         while (time < dur)
         {
-            if (t == null)
-                yield break;
+            if (t == null) { hitPopPlaying = false; yield break; }
 
             time += Time.deltaTime;
             float x = Mathf.Clamp01(time / dur);
 
-            // Merge에서 쓰던 이징 그대로 사용
             float eased =
                 1f +
                 1.70158f * Mathf.Pow(x - 1f, 3f) +
                 1.70158f * Mathf.Pow(x - 1f, 2f);
 
-            t.localScale = Vector3.LerpUnclamped(start, target, eased);
+            t.localScale = Vector3.LerpUnclamped(start, original, eased);
             yield return null;
         }
 
-        t.localScale = target;
+        t.localScale = original;
+        hitPopPlaying = false;
+        hitPopCo = null;
     }
 
     // =====================================================
