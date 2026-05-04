@@ -1120,8 +1120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98da5210ee343824dad5b23bf14c7b5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  btn1: {fileID: 60608188}
-  btn2: {fileID: 309764002}
+  btn1: {fileID: 309764002}
+  btn2: {fileID: 60608188}
 --- !u!114 &60608190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3819,8 +3819,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98da5210ee343824dad5b23bf14c7b5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  btn1: {fileID: 60608188}
-  btn2: {fileID: 309764002}
+  btn1: {fileID: 309764002}
+  btn2: {fileID: 60608188}
 --- !u!114 &309764001
 MonoBehaviour:
   m_ObjectHideFlags: 0
