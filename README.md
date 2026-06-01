@@ -2,8 +2,8 @@
 기존 팀 프로젝트로 개발했던 Merge 기반 방치형 게임을 개인 프로젝트로 리빌딩한 프로젝트입니다.  
 플레이 루프와 시스템 구조를 재구성하고, 콘텐츠 확장과 모바일 최적화를 중심으로 개선했습니다.  
 
-YouTube Link : -  
-Notion Link : -  
+YouTube Link (플레이 영상) : -  
+Notion Link (상세 설명) : https://app.notion.com/p/350cdb7a00eb81eb920df2ef68cb89fb?source=copy_link  
 
 ## 프로젝트 개요
 - 개발 환경 : Unity 2D
